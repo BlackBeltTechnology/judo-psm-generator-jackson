@@ -43,10 +43,13 @@
         <maven.compiler.target>17</maven.compiler.target>
         <!--suppress UnresolvedMavenProperty -->
         <logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
+        <logback-version>1.5.12</logback-version>
+        <lombok-version>1.18.34</lombok-version>
 
         <slf4j-version>2.0.16</slf4j-version>
         <log4j.configuration>log4j.properties</log4j.configuration>
         <surefire-version>3.5.1</surefire-version>
+        <jackson-version>2.17.2</jackson-version>
 
         <judo-dao-api-version>1.0.4.20240411_140837_58d4ecbd_develop</judo-dao-api-version>
         <judo-sdk-common-version>1.0.4.20240611_125218_e11f47d1_develop</judo-sdk-common-version>
@@ -110,7 +113,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.22</version>
+            <version>${lombok-version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -123,7 +126,8 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.11</version>
+            <version>${logback-version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -245,7 +249,7 @@
                         <dependency>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.24</version>
+                            <version>${lombok-version}</version>
                         </dependency>
                     </dependencies>
                 </plugin>
