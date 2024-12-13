@@ -1,0 +1,27 @@
+templates:
+  - name: application.java
+    pathExpression: "'/' + #namedElementGuiceRestParentPath(#self) + '/' + #guiceRestApplication(#self) + '.java'"
+    templateName: rest/guice/application.java.hbs
+    factoryExpression: "#model"
+    actorTypeBased: false
+
+  - name: application-configuration.java
+    pathExpression: "'/' + #namedElementGuiceRestParentPath(#self) + '/' + #guiceRestApplicationConfiguration(#self) + '.java'"
+    templateName: rest/guice/application-configuration.java.hbs
+    factoryExpression: "#model"
+    actorTypeBased: false
+
+  - name: application-modules.java
+    pathExpression: "'/' + #namedElementGuiceRestParentPath(#self) + '/' + #guiceRestApplicationModules(#self) + '.java'"
+    templateName: rest/guice/application-modules.java.hbs
+    factoryExpression: "#model"
+    actorTypeBased: false
+
+
+  #    factoryExpression: "#allAccessPointActor(#model)"
+
+  - name: rest.service.guice.provider.java
+    pathExpression: "'/' + #namedElementGuiceRestParentPath(#self) + '/' + #guiceRestServceProviderClassName(#self) + '.java'"
+    templateName: rest/guice/rest.service.guice.provider.java.hbs
+    factoryExpression: "#allExposedTransferObjectWithOperation(#model)"
+    actorTypeBased: false

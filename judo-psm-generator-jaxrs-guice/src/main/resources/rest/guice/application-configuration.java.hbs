@@ -1,0 +1,11 @@
+package {{ namedElementGuicePackageName self }};
+
+import javax.inject.Qualifier;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+public class {{ guiceRestApplicationModuleConfiguration }} {
+    @Qualifier
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface {{ guiceRestApplicationProperties }} {}
+}

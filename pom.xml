@@ -182,6 +182,12 @@
 
             <dependency>
                 <groupId>hu.blackbelt.judo.generator</groupId>
+                <artifactId>judo-psm-generator-jaxrs-guice</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>hu.blackbelt.judo.generator</groupId>
                 <artifactId>judo-psm-generator-jaxrs-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -418,6 +424,7 @@
                 <module>judo-psm-generator-jaxrs-api</module>
                 <module>judo-psm-generator-jaxrs-impl</module>
                 <module>judo-psm-generator-jaxrs-osgi</module>
+                <module>judo-psm-generator-jaxrs-guice</module>
                 <module>judo-psm-generator-jaxrs-test</module>
             </modules>
         </profile>

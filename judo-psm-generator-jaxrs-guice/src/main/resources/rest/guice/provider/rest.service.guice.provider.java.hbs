@@ -1,0 +1,22 @@
+{{> fragment.header.hbs }}
+
+package {{ namedElementGuiceRestPackageName self }};
+
+{{# if (hasDocumentation self) }}
+    /**
+    * {{ self.documentation.decorateWithAsterisks }}
+    */
+{{/ if  }}
+
+public class {{ guiceRestServceProviderClassName }} implements com.google.inject.Provider<{{ namedElementApiRestFqName self }}> {
+    @com.google.inject.Inject
+    hu.blackbelt.judo.dispatcher.api.Dispatcher dispatcher;
+
+    @Override
+    public {{ namedElementApiRestFqName self }} get() {
+        {{ namedElementImplRestFqName self }} impl = new {{ namedElementImplRestFqName self }}();
+        impl.__bindDispatcher(dispatcher);
+        return impl;
+    }
+}
+

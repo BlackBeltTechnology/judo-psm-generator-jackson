@@ -1,0 +1,126 @@
+package {{ namedElementGuicePackageName self }};
+
+public class {{ guiceRestApplication }} {
+
+    @lombok.Builder
+    @lombok.Getter
+    public static class {{ guiceRestApplicationModuleConfigurator }} {
+        @lombok.Builder.Default
+        hu.blackbelt.judo.runtime.core.dao.rdbms.Dialect dialect = new hu.blackbelt.judo.runtime.core.dao.rdbms.hsqldb.HsqldbDialect();
+
+        @lombok.Builder.Default
+        Boolean validate = true;
+
+        @lombok.Builder.Default
+        hu.blackbelt.judo.runtime.core.guice.JudoModelLoader judoModelLoader = null;
+
+        @lombok.Builder.Default
+        hu.blackbelt.judo.runtime.core.guice.dao.rdbms.hsqldb.JudoHsqldbModule.JudoHsqldbModuleBuilder judoHsqldbModulesBuilder = hu.blackbelt.judo.runtime.core.guice.dao.rdbms.hsqldb.JudoHsqldbModule.builder();
+
+        @lombok.Builder.Default
+        hu.blackbelt.judo.runtime.core.guice.dao.rdbms.postgresql.JudoPostgresqlModule.JudoPostgresqlModuleBuilder judoPostgresqlModuleBuilder = hu.blackbelt.judo.runtime.core.guice.dao.rdbms.postgresql.JudoPostgresqlModule.builder();
+
+        @lombok.Builder.Default
+        hu.blackbelt.judo.runtime.core.jaxrs.cxf.server.guice.JudoCxfModule.JudoCxfModuleBuilder cxfModulesBuilder = hu.blackbelt.judo.runtime.core.jaxrs.cxf.server.guice.JudoCxfModule.builder();
+
+        @lombok.Builder.Default
+        hu.blackbelt.judo.runtime.core.guice.JudoDefaultModule.JudoDefaultModuleBuilder judoDefaultModuleBuilder = hu.blackbelt.judo.runtime.core.guice.JudoDefaultModule.builder();
+
+        @lombok.Builder.Default
+        hu.blackbelt.judo.runtime.core.jetty.guice.JudoJettyModule.JudoJettyModuleBuilder judoJettyModulesBuilder = hu.blackbelt.judo.runtime.core.jetty.guice.JudoJettyModule.builder();
+
+        @lombok.Builder.Default
+        hu.blackbelt.judo.runtime.core.security.keycloak.guice.JudoKeycloakModule.JudoKeycloakModuleBuilder judoKeycloakModuleBuilder = hu.blackbelt.judo.runtime.core.security.keycloak.guice.JudoKeycloakModule.builder();
+
+        @lombok.Builder.Default
+        java.util.List<com.google.inject.Module> extraModules = new java.util.ArrayList<>();
+
+        @lombok.Builder.Default
+        {{ guiceRestApplicationModules }}.{{ guiceRestApplicationModulesBuilder }} applicationModulesBuilder ={{ guiceRestApplicationModules }}.builder();
+    }
+
+    private {{ guiceRestApplicationModuleConfigurator }} applicationConfigurator;
+
+    @com.google.inject.Inject
+    java.util.Set<javax.ws.rs.core.Application> applications;
+
+    @com.google.inject.Inject
+    hu.blackbelt.judo.runtime.core.jaxrs.cxf.server.guice.providers.CxfJaxrsServerProvider cxfJaxrsServerProvider;
+
+    @com.google.inject.Inject
+    hu.blackbelt.judo.runtime.core.jaxrs.cxf.server.guice.providers.CxfJaxrsServerProvider.ServerHolder serverHolder;
+
+    public static class {{ guiceRestApplicationBuilder }} {
+        java.util.function.Consumer<{{ guiceRestApplicationModuleConfigurator }}> configurator = null;
+        hu.blackbelt.judo.runtime.core.dao.rdbms.Dialect dialect = new hu.blackbelt.judo.runtime.core.dao.rdbms.hsqldb.HsqldbDialect();
+        java.util.List<com.google.inject.Module> extraModules = new java.util.ArrayList<>();
+        hu.blackbelt.judo.runtime.core.guice.JudoModelLoader judoModelLoader = null;
+    }
+
+    hu.blackbelt.judo.runtime.core.guice.JudoModelLoader judoModelLoader;
+
+    @lombok.Builder
+    public {{ guiceRestApplication }}(java.util.function.Consumer<{{ guiceRestApplicationModuleConfigurator }}> configurator,
+                                            hu.blackbelt.judo.runtime.core.dao.rdbms.Dialect dialect,
+                                            hu.blackbelt.judo.runtime.core.guice.JudoModelLoader judoModelLoader,
+                                            java.util.List<com.google.inject.Module> extraModules) throws Exception {
+        this.applicationConfigurator = {{ guiceRestApplicationModuleConfigurator }}
+                .builder()
+                .dialect(dialect)
+                .extraModules(extraModules)
+                .build();
+        if (configurator != null) {
+            configurator.accept(applicationConfigurator);
+        }
+        if (judoModelLoader == null) {
+            this.judoModelLoader = loadModel();
+        } else {
+            this.judoModelLoader = judoModelLoader;
+        }
+    }
+
+    public hu.blackbelt.judo.runtime.core.guice.JudoModelLoader loadModel() throws Exception {
+        hu.blackbelt.judo.runtime.core.guice.JudoModelLoader judoModelLoader = hu.blackbelt.judo.runtime.core.guice.JudoModelLoader.loadFromClassloader(
+                "{{ className }}",
+                this.getClass().getClassLoader(),
+                applicationConfigurator.getDialect(),
+                false, true);
+        return judoModelLoader;
+    }
+
+    public com.google.inject.Injector inject() throws Exception {
+        com.google.inject.Module databaseModule = null;
+        if (applicationConfigurator.getDialect() instanceof hu.blackbelt.judo.runtime.core.dao.rdbms.hsqldb.HsqldbDialect) {
+            databaseModule = applicationConfigurator.getJudoHsqldbModulesBuilder().build();
+        } else if (applicationConfigurator.getDialect() instanceof hu.blackbelt.judo.runtime.core.dao.rdbms.postgresql.PostgresqlDialect) {
+            databaseModule = applicationConfigurator.getJudoPostgresqlModuleBuilder().build();
+        }
+
+        com.google.inject.Module cxfModule = applicationConfigurator.getCxfModulesBuilder().build();
+        com.google.inject.Module jettyModule = applicationConfigurator.getJudoJettyModulesBuilder().build();
+
+        com.google.inject.Module restModule = applicationConfigurator.getApplicationModulesBuilder().build();
+
+        com.google.inject.Module keycloakModule = applicationConfigurator.getJudoKeycloakModuleBuilder().build();
+
+        com.google.inject.Module daoModules = new {{ className }}DaoModules();
+
+        com.google.inject.Module modules = com.google.inject.util.Modules.combine(
+                applicationConfigurator.getJudoDefaultModuleBuilder().judoModelLoader(judoModelLoader).build(),
+                jettyModule,
+                databaseModule,
+                cxfModule,
+                keycloakModule,
+                restModule,
+                daoModules
+        );
+
+        com.google.inject.Injector injector = com.google.inject.Guice.createInjector(modules);
+        injector.injectMembers(this);
+        return injector;
+    }
+
+    public static void main(String[] args) throws Exception {
+    }
+
+}

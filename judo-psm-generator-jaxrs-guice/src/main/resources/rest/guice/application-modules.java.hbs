@@ -1,0 +1,55 @@
+package {{ namedElementGuicePackageName self }};
+
+public class TestDerivedExportRestApplicationModules extends com.google.inject.AbstractModule {
+
+    @com.google.inject.Inject
+    hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.Actor testderivedexport_actor;
+
+    @com.google.inject.Inject
+    hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.TestTransfer testderivedexport_TestTransfer;
+
+    @com.google.inject.Inject
+    java.util.Set<javax.ws.rs.core.Application> applications;
+
+    public static class {{ guiceRestApplicationModulesBuilder }} {
+        hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.Actor testderivedexport_actor;
+        hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.TestTransfer testderivedexport_TestTransfer;
+    }
+
+    @lombok.Builder
+    private {{ guiceRestApplicationModules }}(
+            hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.Actor testderivedexport_actor,
+            hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.TestTransfer testderivedexport_TestTransfer
+    ) {
+        this.testderivedexport_actor = testderivedexport_actor;
+        this.testderivedexport_TestTransfer = testderivedexport_TestTransfer;
+    }
+
+    @Override
+    protected void configure() {
+        configureApplication();
+        binder().requestInjection(this);
+    }
+
+    protected void configureApplication() {
+        com.google.inject.multibindings.Multibinder<javax.ws.rs.core.Application> applicationMultibinder = com.google.inject.multibindings.Multibinder.newSetBinder(binder(), javax.ws.rs.core.Application.class);
+        applicationMultibinder.addBinding().toProvider(hu.blackbelt.judo.testderivedexport.guice.testderivedexport.ActorApplicationProvider.class).asEagerSingleton();
+
+        java.util.Map properties = new java.util.HashMap<>();
+        properties.put("judo.model.name", "TestDerivedExport");
+        properties.put("applicationPath", "TestDerivedExport/Actor");
+        properties.put("jaxrs.application.name", "TestDerivedExport.Actor");
+
+        bind(java.util.Map.class).annotatedWith(TestDerivedExportApplicationConfiguration.TestDerivedExportRestApplicationProperties.class).toInstance(properties);
+        if (testderivedexport_actor != null) {
+            bind(hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.Actor.class).toInstance(testderivedexport_actor);
+        } else {
+            bind(hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.Actor.class).toProvider(hu.blackbelt.judo.testderivedexport.guice.provider.testderivedexport.ActorRestServiceProvider.class).asEagerSingleton();
+        }
+        if (testderivedexport_TestTransfer != null) {
+            bind(hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.TestTransfer.class).toInstance(testderivedexport_TestTransfer);
+        } else {
+            bind(hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.TestTransfer.class).toProvider(hu.blackbelt.judo.testderivedexport.guice.provider.testderivedexport.TestTransferProvider.class).asEagerSingleton();
+        }
+    }
+}
