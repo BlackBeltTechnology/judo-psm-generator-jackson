@@ -1,55 +1,58 @@
-package {{ namedElementGuicePackageName self }};
+package {{ modelGuiceRestPackageName model }};
 
-public class TestDerivedExportRestApplicationModules extends com.google.inject.AbstractModule {
+public class {{ guiceRestApplicationModules model }} extends com.google.inject.AbstractModule {
 
+{{# each (allExposedTransferObjectWithOperation model) as |to| }}
     @com.google.inject.Inject
-    hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.Actor testderivedexport_actor;
+    {{ namedElementApiRestFqName to }} {{ variableName to }};
 
-    @com.google.inject.Inject
-    hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.TestTransfer testderivedexport_TestTransfer;
+{{/ each }}
 
     @com.google.inject.Inject
     java.util.Set<javax.ws.rs.core.Application> applications;
 
-    public static class {{ guiceRestApplicationModulesBuilder }} {
-        hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.Actor testderivedexport_actor;
-        hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.TestTransfer testderivedexport_TestTransfer;
+    public static class {{ guiceRestApplicationModulesBuilder model }} {
+{{# each (allExposedTransferObjectWithOperation model) as |to| }}
+        {{ namedElementApiRestFqName to }} {{ variableName to }};
+{{/ each }}
     }
 
     @lombok.Builder
-    private {{ guiceRestApplicationModules }}(
-            hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.Actor testderivedexport_actor,
-            hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.TestTransfer testderivedexport_TestTransfer
+    private {{ guiceRestApplicationModules model }}(
+{{# each (allExposedTransferObjectWithOperation model) as |to| }}
+        {{ namedElementApiRestFqName to }} {{ variableName to }}{{# unless @last }},{{/ unless }}
+{{/ each }}
     ) {
-        this.testderivedexport_actor = testderivedexport_actor;
-        this.testderivedexport_TestTransfer = testderivedexport_TestTransfer;
+{{# each (allExposedTransferObjectWithOperation model) as |to| }}
+        this.{{ variableName to }} = {{ variableName to }};
+{{/ each }}
     }
+
+    com.google.inject.multibindings.Multibinder<javax.ws.rs.core.Application> applicationMultibinder;
 
     @Override
     protected void configure() {
-        configureApplication();
+        applicationMultibinder = com.google.inject.multibindings.Multibinder.newSetBinder(binder(), javax.ws.rs.core.Application.class);
+        configureServices();
+        {{# each (allAccessPointActor model) as |actor| }}
+        configure{{ className actor }}Application();
+        {{/ each }}
         binder().requestInjection(this);
     }
 
-    protected void configureApplication() {
-        com.google.inject.multibindings.Multibinder<javax.ws.rs.core.Application> applicationMultibinder = com.google.inject.multibindings.Multibinder.newSetBinder(binder(), javax.ws.rs.core.Application.class);
-        applicationMultibinder.addBinding().toProvider(hu.blackbelt.judo.testderivedexport.guice.testderivedexport.ActorApplicationProvider.class).asEagerSingleton();
-
-        java.util.Map properties = new java.util.HashMap<>();
-        properties.put("judo.model.name", "TestDerivedExport");
-        properties.put("applicationPath", "TestDerivedExport/Actor");
-        properties.put("jaxrs.application.name", "TestDerivedExport.Actor");
-
-        bind(java.util.Map.class).annotatedWith(TestDerivedExportApplicationConfiguration.TestDerivedExportRestApplicationProperties.class).toInstance(properties);
-        if (testderivedexport_actor != null) {
-            bind(hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.Actor.class).toInstance(testderivedexport_actor);
+    protected void configureServices() {
+        {{# each (allExposedTransferObjectWithOperation model) as |to| }}
+        if (this.{{ variableName to }} != null) {
+            bind({{ namedElementApiRestFqName to }}.class).toInstance(this.{{ variableName to }});
         } else {
-            bind(hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.Actor.class).toProvider(hu.blackbelt.judo.testderivedexport.guice.provider.testderivedexport.ActorRestServiceProvider.class).asEagerSingleton();
+            bind({{ namedElementApiRestFqName to }}.class).toProvider({{ guiceRestServiceProviderClassFqName to }}.class).asEagerSingleton();
         }
-        if (testderivedexport_TestTransfer != null) {
-            bind(hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.TestTransfer.class).toInstance(testderivedexport_TestTransfer);
-        } else {
-            bind(hu.blackbelt.judo.testderivedexport.api.rest.testderivedexport.TestTransfer.class).toProvider(hu.blackbelt.judo.testderivedexport.guice.provider.testderivedexport.TestTransferProvider.class).asEagerSingleton();
-        }
+        {{/ each }}
     }
+
+    {{# each (allAccessPointActor model) as |actor| }}
+    protected void configure{{ className actor }}Application() {
+        applicationMultibinder.addBinding().toProvider({{ guiceRestApplicationProviderFqName actor }}.class).asEagerSingleton();
+    }
+    {{/ each }}
 }

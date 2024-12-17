@@ -20,9 +20,11 @@ package hu.blackbelt.judo.psm.generator.jaxrs.guice;
  * #L%
  */
 
+import com.github.jknack.handlebars.internal.lang3.StringUtils;
 import hu.blackbelt.judo.generator.commons.StaticMethodValueResolver;
 import hu.blackbelt.judo.generator.commons.ThreadLocalContextHolder;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
+import hu.blackbelt.judo.meta.psm.namespace.Model;
 import hu.blackbelt.judo.meta.psm.namespace.NamedElement;
 import hu.blackbelt.judo.meta.psm.namespace.Namespace;
 
@@ -38,17 +40,20 @@ public class JavaGuiceHelper extends StaticMethodValueResolver {
     public static synchronized String getGuicePrefixLocal() {
         return (String) ThreadLocalContextHolder.getVariable("guicePrefix");
     }
+    public static synchronized String getGuiceSdkPrefixLocal() {
+        return (String) ThreadLocalContextHolder.getVariable("guiceSdkPrefix");
+    }
 
     public static String guicePackageName() {
         return (getGuicePrefixLocal().equals("") ? "" : getGuicePrefixLocal() + ".");
     }
 
-    public static String namedElementGuiceParentPath(NamedElement namedElement) {
-        return guicePackageName().replaceAll("\\.", "/") + namedElementParentPath(namedElement);
+    public static String guiceSdkPackageName() {
+        return (getGuiceSdkPrefixLocal().equals("") ? "" : getGuiceSdkPrefixLocal() + ".");
     }
 
-    public static String namedElementRestPath(NamedElement namedElement) {
-        return Arrays.stream(fqName((Namespace) namedElement.eContainer(), "/", false).split("/")).filter(name -> !DEFAULT_TRANSFER_OBJECT_TYPES.equals(name)).collect(Collectors.joining("/"));
+    public static String namedElementGuiceParentPath(NamedElement namedElement) {
+        return guicePackageName().replaceAll("\\.", "/") + namedElementParentPath(namedElement);
     }
 
     public static String namedElementGuicePackageName(NamedElement namedElement) {
@@ -59,8 +64,20 @@ public class JavaGuiceHelper extends StaticMethodValueResolver {
         return guicePackageName() + REST + "." + namedElementPackageName(namedElement);
     }
 
+    public static String modelGuiceRestPackageName(Model model) {
+        return guicePackageName() + REST + "." + model.getName().toLowerCase();
+    }
+
+    public static String modelGuiceRestPath(Model model) {
+        return guicePackageName().replaceAll("\\.", "/")  + REST + "/" + model.getName().toLowerCase();
+    }
+
     public static String namedElementGuiceRestParentPath(NamedElement namedElement) {
         return guicePackageName().replaceAll("\\.", "/") + REST + "/" + namedElementParentPath(namedElement);
+    }
+
+    public static String modelGuiceRestParentPath(Model model) {
+        return guicePackageName().replaceAll("\\.", "/") + REST + "/" + model.getName().toLowerCase();
     }
 
     public static String applicationGuiceClassName(NamedElement namedElement) {
@@ -71,10 +88,6 @@ public class JavaGuiceHelper extends StaticMethodValueResolver {
         return className(namedElement) + "Guice";
     }
 
-    public static String variableName(NamedElement namedElement) {
-        return (namedElementPackageName(namedElement) + "_" + guiceClassName(namedElement)).replaceAll("\\.", "_");
-    }
-
     public static String applicationGuiceFqName(NamedElement namedElement) {
         return namedElementGuicePackageName(namedElement) + "." + applicationGuiceClassName(namedElement);
     }
@@ -83,34 +96,63 @@ public class JavaGuiceHelper extends StaticMethodValueResolver {
         return namedElementGuiceRestPackageName(namedElement) + "." + guiceClassName(namedElement);
     }
 
-    public static String guiceProviderClassName(NamedElement namedElement) {
+    public static String guiceRestServiceProviderClassName(NamedElement namedElement) {
         return className(namedElement) + "RestServiceProvider";
     }
-    public static String guiceRestApplicationModuleConfigurator(NamedElement namedElement) {
-        return className(namedElement) + "RestApplicationModuleConfigurator";
+
+    public static String guiceRestServiceProviderClassFqName(NamedElement namedElement) {
+        return namedElementGuiceRestPackageName(namedElement) + "." + guiceRestServiceProviderClassName(namedElement);
     }
 
-    public static String guiceRestApplicationModuleConfiguration(NamedElement namedElement) {
-        return className(namedElement) + "RestApplicationModuleConfiguration";
+    public static String guiceRestApplicationProviderClassName(NamedElement namedElement) {
+        return className(namedElement) + "RestApplicationProvider";
     }
 
-    public static String guiceRestApplicationModules(NamedElement namedElement) {
-        return className(namedElement) + "RestApplicationModules";
+    public static String guiceRestApplicationProviderFqName(NamedElement namedElement) {
+        return namedElementGuiceRestPackageName(namedElement) + "." + guiceRestApplicationProviderClassName(namedElement);
     }
 
-    public static String guiceRestApplicationModulesBuilder(NamedElement namedElement) {
-        return className(namedElement) + "RestApplicationModulesBuilder";
+    public static String guiceRestApplicationModuleConfigurator(Model model) {
+        return StringUtils.capitalize(model.getName()) + "RestApplicationModuleConfigurator";
     }
 
-    public static String guiceRestApplication(NamedElement namedElement) {
-        return className(namedElement) + "RestApplication";
+    public static String guiceRestApplicationModuleConfiguration(Model model) {
+        return StringUtils.capitalize(model.getName()) + "RestApplicationModuleConfiguration";
     }
 
-    public static String guiceRestApplicationBuilder(NamedElement namedElement) {
-        return className(namedElement) + "RestApplicationBuilder";
+    public static String guiceRestApplicationModules(Model model) {
+        return StringUtils.capitalize(model.getName()) + "RestApplicationModules";
     }
 
-    public static String guiceRestApplicationProperties(NamedElement namedElement) {
-        return className(namedElement) + "RestApplicationProperties";
+    public static String guiceRestApplicationModulesBuilder(Model model) {
+        return StringUtils.capitalize(model.getName()) + "RestApplicationModulesBuilder";
+    }
+
+    public static String guiceRestApplication(Model model) {
+        return StringUtils.capitalize(model.getName()) + "RestApplication";
+    }
+
+    public static String guiceRestApplicationBuilder(Model model) {
+        return StringUtils.capitalize(model.getName()) + "RestApplicationBuilder";
+    }
+
+    public static String guiceRestApplicationProperties(Model model) {
+        return StringUtils.capitalize(model.getName()) + "RestApplicationProperties";
+    }
+
+//    public static String guiceRestApplicationProvider(Model model) {
+//        return className(model) + "RestApplicationProvider";
+//    }
+//
+//    public static String guiceRestApplicationProviderFqName(Model model) {
+//        return modelGuiceRestPackageName(model) + "." + guiceRestApplicationProvider(model);
+//    }
+
+    public static String guiceDaoProviderModuleName(Model model) {
+        return StringUtils.capitalize(model.getName()) + "DaoModules";
+    }
+
+    public static String guiceDaoProviderModuleFqName(Model model) {
+        return guiceSdkPackageName() + guiceDaoProviderModuleName(model);
     }
 }

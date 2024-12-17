@@ -1,10 +1,10 @@
-package {{ namedElementGuicePackageName self }};
+package {{ modelGuiceRestPackageName model }};
 
-public class {{ guiceRestApplication }} {
+public class {{ guiceRestApplication model }} {
 
     @lombok.Builder
     @lombok.Getter
-    public static class {{ guiceRestApplicationModuleConfigurator }} {
+    public static class {{ guiceRestApplicationModuleConfigurator model }} {
         @lombok.Builder.Default
         hu.blackbelt.judo.runtime.core.dao.rdbms.Dialect dialect = new hu.blackbelt.judo.runtime.core.dao.rdbms.hsqldb.HsqldbDialect();
 
@@ -33,13 +33,16 @@ public class {{ guiceRestApplication }} {
         hu.blackbelt.judo.runtime.core.security.keycloak.guice.JudoKeycloakModule.JudoKeycloakModuleBuilder judoKeycloakModuleBuilder = hu.blackbelt.judo.runtime.core.security.keycloak.guice.JudoKeycloakModule.builder();
 
         @lombok.Builder.Default
-        java.util.List<com.google.inject.Module> extraModules = new java.util.ArrayList<>();
+       {{ guiceRestApplicationModules model }}.{{ guiceRestApplicationModulesBuilder model }} applicationModulesBuilder ={{ guiceRestApplicationModules model }}.builder();
 
         @lombok.Builder.Default
-        {{ guiceRestApplicationModules }}.{{ guiceRestApplicationModulesBuilder }} applicationModulesBuilder ={{ guiceRestApplicationModules }}.builder();
+        java.util.List<com.google.inject.Module> extraModules = new java.util.ArrayList<>();
+
+        @lombok.NonNull
+        com.google.inject.Module daoModule;
     }
 
-    private {{ guiceRestApplicationModuleConfigurator }} applicationConfigurator;
+    private {{ guiceRestApplicationModuleConfigurator model }} applicationConfigurator;
 
     @com.google.inject.Inject
     java.util.Set<javax.ws.rs.core.Application> applications;
@@ -50,8 +53,8 @@ public class {{ guiceRestApplication }} {
     @com.google.inject.Inject
     hu.blackbelt.judo.runtime.core.jaxrs.cxf.server.guice.providers.CxfJaxrsServerProvider.ServerHolder serverHolder;
 
-    public static class {{ guiceRestApplicationBuilder }} {
-        java.util.function.Consumer<{{ guiceRestApplicationModuleConfigurator }}> configurator = null;
+    public static class {{ guiceRestApplicationBuilder model }} {
+        java.util.function.Consumer<{{ guiceRestApplicationModuleConfigurator model }}> configurator = null;
         hu.blackbelt.judo.runtime.core.dao.rdbms.Dialect dialect = new hu.blackbelt.judo.runtime.core.dao.rdbms.hsqldb.HsqldbDialect();
         java.util.List<com.google.inject.Module> extraModules = new java.util.ArrayList<>();
         hu.blackbelt.judo.runtime.core.guice.JudoModelLoader judoModelLoader = null;
@@ -60,13 +63,15 @@ public class {{ guiceRestApplication }} {
     hu.blackbelt.judo.runtime.core.guice.JudoModelLoader judoModelLoader;
 
     @lombok.Builder
-    public {{ guiceRestApplication }}(java.util.function.Consumer<{{ guiceRestApplicationModuleConfigurator }}> configurator,
+    public {{ guiceRestApplication model }}(java.util.function.Consumer<{{ guiceRestApplicationModuleConfigurator model }}> configurator,
+                                            com.google.inject.Module daoModule,
                                             hu.blackbelt.judo.runtime.core.dao.rdbms.Dialect dialect,
                                             hu.blackbelt.judo.runtime.core.guice.JudoModelLoader judoModelLoader,
                                             java.util.List<com.google.inject.Module> extraModules) throws Exception {
-        this.applicationConfigurator = {{ guiceRestApplicationModuleConfigurator }}
+        this.applicationConfigurator = {{ guiceRestApplicationModuleConfigurator model }}
                 .builder()
                 .dialect(dialect)
+                .daoModule(daoModule)
                 .extraModules(extraModules)
                 .build();
         if (configurator != null) {
@@ -81,7 +86,7 @@ public class {{ guiceRestApplication }} {
 
     public hu.blackbelt.judo.runtime.core.guice.JudoModelLoader loadModel() throws Exception {
         hu.blackbelt.judo.runtime.core.guice.JudoModelLoader judoModelLoader = hu.blackbelt.judo.runtime.core.guice.JudoModelLoader.loadFromClassloader(
-                "{{ className }}",
+                "{{ className model }}",
                 this.getClass().getClassLoader(),
                 applicationConfigurator.getDialect(),
                 false, true);
@@ -103,8 +108,6 @@ public class {{ guiceRestApplication }} {
 
         com.google.inject.Module keycloakModule = applicationConfigurator.getJudoKeycloakModuleBuilder().build();
 
-        com.google.inject.Module daoModules = new {{ className }}DaoModules();
-
         com.google.inject.Module modules = com.google.inject.util.Modules.combine(
                 applicationConfigurator.getJudoDefaultModuleBuilder().judoModelLoader(judoModelLoader).build(),
                 jettyModule,
@@ -112,7 +115,7 @@ public class {{ guiceRestApplication }} {
                 cxfModule,
                 keycloakModule,
                 restModule,
-                daoModules
+                applicationConfigurator.getDaoModule()
         );
 
         com.google.inject.Injector injector = com.google.inject.Guice.createInjector(modules);

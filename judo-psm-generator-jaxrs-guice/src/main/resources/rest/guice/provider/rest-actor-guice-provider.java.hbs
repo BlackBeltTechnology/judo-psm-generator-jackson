@@ -1,0 +1,18 @@
+package {{ namedElementGuiceRestPackageName self }};
+
+public class {{ guiceRestApplicationProviderClassName self }} implements com.google.inject.Provider<javax.ws.rs.core.Application> {
+
+    {{# each self.getAllExposedTransferObjectTypesFromAccessPoint as | to | }}
+    @com.google.inject.Inject
+    {{ namedElementApiRestFqName to }} {{ variableName to }};
+    {{/ each }}
+
+    @Override
+    public javax.ws.rs.core.Application get() {
+        {{ applicationImplFqName self }} impl = new {{ applicationImplFqName self }}();
+        {{# each self.getAllExposedTransferObjectTypesFromAccessPoint as | to | }}
+        impl.set_{{ variableName to }}(this.{{ variableName to }});
+        {{/ each }}
+        return impl;
+    }
+}

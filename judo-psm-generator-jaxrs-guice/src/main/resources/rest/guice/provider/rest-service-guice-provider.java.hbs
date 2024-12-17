@@ -8,7 +8,7 @@ package {{ namedElementGuiceRestPackageName self }};
     */
 {{/ if  }}
 
-public class {{ guiceRestServceProviderClassName }} implements com.google.inject.Provider<{{ namedElementApiRestFqName self }}> {
+public class {{ guiceRestServiceProviderClassName self }} implements com.google.inject.Provider<{{ namedElementApiRestFqName self }}> {
     @com.google.inject.Inject
     hu.blackbelt.judo.dispatcher.api.Dispatcher dispatcher;
 
