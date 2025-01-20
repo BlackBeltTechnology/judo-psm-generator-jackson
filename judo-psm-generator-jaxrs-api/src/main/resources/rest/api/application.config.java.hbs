@@ -2,6 +2,7 @@
 
 package {{ namedElementApiPackageName self }};
 
+{{# if generateOpenApiAnnotations }}
 @io.swagger.v3.oas.annotations.OpenAPIDefinition(
     info = @io.swagger.v3.oas.annotations.info.Info(
         title = "{{ model.name }} API",
@@ -23,11 +24,12 @@ package {{ namedElementApiPackageName self }};
                 @io.swagger.v3.oas.annotations.security.SecurityScheme(
                     type = io.swagger.v3.oas.annotations.enums.SecuritySchemeType.OPENIDCONNECT,
                     name = "{{ getRealmLowerCase self }}",
-                    openIdConnectUrl = "https://auth.tatami-tests.judo.technology/auth/realms/{{ getRealm self }}/.well-known/openid-configuration"
+                    openIdConnectUrl = "{{ getBaseUri }}/auth/realms/{{ getRealm self }}/.well-known/openid-configuration"
                 ),
             }
         )
     {{/ if }}
+{{/ if }}
 {{/ if }}
 public interface {{ self.applicationClassName }} {
 
